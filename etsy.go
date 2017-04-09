@@ -1,19 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
-
-func enqueue(page Processor, queue chan Processor) {
-	pages := page.Process();
-
-	for _, addPage := range pages {
-		fmt.Println("it is supposed to add", addPage.Url())
-		go func () { queue <- addPage } ()
-	}
-}
-
 type Processor interface {
 	Url() (string)
 	Process() ([]Processor)
@@ -33,20 +19,23 @@ func main() {
 	}()
 
 	for page := range filteredQueue {
-		enqueue(page, queue)
+		go enqueue(page, queue)
+	}
+}
+
+func enqueue(page Processor, queue chan Processor) {
+	pages := page.Process();
+	for _, addPage := range pages {
+		queue <- addPage
 	}
 }
 
 func filterQueue(in chan Processor, out chan Processor) {
 	var seen = make(map[string]bool)
-	fmt.Println("seen", seen)
 	for page := range in {
 		if (!seen[page.Url()]) {
-			fmt.Println("adding to seen", page.Url())
 			seen[page.Url()] = true
 			out <- page
-		} else {
-			 fmt.Println("not adding to seen", page.Url())
-		 }
+		}
 	}
 }
