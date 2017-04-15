@@ -24,7 +24,8 @@ func NewSiteMapPage(url string) *SiteMapPage {
 
 func (smp *SiteMapPage)Process() (pages []Processor) {
 	if (len(smp.Links) > 0) {
-		page := NewCategoryPage(smp.Links[0].String())
+		link := smp.Links[0].String()
+		page := NewCategoryPage(link)
 		pages = append(pages, page)
 	}
   return

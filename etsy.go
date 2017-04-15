@@ -19,22 +19,26 @@ func main() {
 	}()
 
 	for page := range filteredQueue {
-		go enqueue(page, queue)
+		enqueue(page, queue)
 	}
+
 }
 
 func enqueue(page Processor, queue chan Processor) {
 	pages := page.Process();
-	for _, addPage := range pages {
-		queue <- addPage
+		for _, addPage := range pages {
+			go func(addPage Processor) {
+				queue <- addPage
+			}(addPage)
 	}
 }
 
 func filterQueue(in chan Processor, out chan Processor) {
 	var seen = make(map[string]bool)
 	for page := range in {
-		if (!seen[page.Url()]) {
-			seen[page.Url()] = true
+		url := page.Url()
+		if (!seen[url]) {
+			seen[url] = true
 			out <- page
 		}
 	}

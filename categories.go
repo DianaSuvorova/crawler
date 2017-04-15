@@ -4,38 +4,56 @@ import (
   "fmt"
   "github.com/PuerkitoBio/goquery"
   "regexp"
+  "strings"
+  "github.com/jinzhu/gorm"
+  _ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type CategoryPage struct {
   Doc *goquery.Document
-  url string
   *Category
 }
 
 type Category struct {
-  title string
-  items string
+  gorm.Model
+  Url string
+  Items string
 }
 
 func NewCategoryPage(url string) *CategoryPage {
   cp := new(CategoryPage)
-  cp.url = url
+  cp.Category = new(Category)
+  cp.Category.Url = url
   cp.Doc, _ = goquery.NewDocument(url)
 
   return cp
 }
 
 func (cp *CategoryPage)Process() (zero []Processor) {
-  fmt.Println(cp.url)
   cp.Doc.Find("div.mt-xs-2 span").Each(func(i int, s *goquery.Selection) {
     match, _ := regexp.MatchString("\\([,0-9]* items\\)", s.Text())
      if (match) {
-       fmt.Println(s.Text())
+       result := strings.TrimSpace(s.Text())
+       cp.Category.Items = result
+       cp.Category.write()
      }
   })
   return
 }
 
 func (cp *CategoryPage)Url() string {
-	return cp.url
+	return cp.Category.Url
+}
+
+func(c *Category)write() {
+  db, err := gorm.Open("mysql", "--connection tbd")
+  db.LogMode(true)
+  if err != nil {
+    fmt.Println(err)
+  }
+  defer db.Close()
+
+  db.CreateTable(&Category{})
+
+  db.Create(c)
 }
