@@ -4,8 +4,9 @@ import (
   "fmt"
   "github.com/PuerkitoBio/goquery"
   "regexp"
-  "strings"
   "github.com/jinzhu/gorm"
+  "strconv"
+  "strings"
 )
 
 type categoryPage struct {
@@ -15,14 +16,14 @@ type categoryPage struct {
 
 type category struct {
   gorm.Model
-  url string
-  Items string
+  Url string
+  Items int
 }
 
 func NewCategoryPage(url string) *categoryPage {
   cp := new(categoryPage)
   cp.category = new(category)
-  cp.category.url = url
+  cp.category.Url = url
   cp.doc, _ = goquery.NewDocument(url)
 
   return cp
@@ -30,20 +31,25 @@ func NewCategoryPage(url string) *categoryPage {
 
 func (cp *categoryPage)process() (zero []processor) {
   cp.doc.Find("div.mt-xs-2 span").Each(func(i int, s *goquery.Selection) {
-    match, _ := regexp.MatchString("\\([,0-9]* items\\)", s.Text())
-     if (match) {
-       result := strings.TrimSpace(s.Text())
-       cp.category.Items = result
-       cp.category.write()
-     }
+    re, err := regexp.Compile("\\(([,0-9]+) items\\)")
+    if (err != nil) {
+      fmt.Println(err)
+    }
+    res := re.FindAllStringSubmatch(s.Text(), -1)
+    if (res != nil ) {
+      cp.category.Items, _ = strconv.Atoi(strings.Replace(res[0][1], ",","", -1))
+      cp.category.write()
+    }
   })
   return
 }
 
 func (cp *categoryPage)url() string {
-	return cp.category.url
+	return cp.category.Url
 }
 
 func(c *category)write() {
-   db.Create(c)
+  //db.CreateTable(&category{})
+  fmt.Println(c)
+  db.Create(c)
 }
