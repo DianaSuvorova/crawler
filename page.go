@@ -6,21 +6,21 @@ import (
 	"bytes"
 )
 
-type Page struct {
-    Url string
-    Body string
+type page struct {
+    url string
+    body string
 }
 
-func NewPage(url string) *Page {
-  p := new(Page)
-  p.Url = url
+func NewPage(url string) *page {
+  p := new(page)
+  p.url = url
   resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
-  p.Body = buf.String()
+  p.body = buf.String()
   defer resp.Body.Close()
 
   return p

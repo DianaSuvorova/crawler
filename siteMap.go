@@ -4,25 +4,25 @@ import (
 	"encoding/xml"
 )
 
-type SiteMapPage struct {
- *Page
- *SiteMap
+type siteMapPage struct {
+ *page
+ *siteMap
 }
 
-type SiteMap struct {
- Links []XmlLink `xml:"url"`
+type siteMap struct {
+ Links []xmlLink `xml:"url"`
 }
 
-func NewSiteMapPage(url string) *SiteMapPage {
-  smp := new(SiteMapPage)
-  smp.Page = NewPage(url);
+func newSiteMapPage(url string) *siteMapPage {
+  smp := new(siteMapPage)
+  smp.page = NewPage(url);
 
 
-  xml.Unmarshal([]byte(smp.Page.Body), &smp.SiteMap)
+  xml.Unmarshal([]byte(smp.page.body), &smp.siteMap)
   return smp
 }
 
-func (smp *SiteMapPage)Process() (pages []Processor) {
+func (smp *siteMapPage)process() (pages []processor) {
 	if (len(smp.Links) > 0) {
 		link := smp.Links[0].String()
 		page := NewCategoryPage(link)
@@ -31,6 +31,6 @@ func (smp *SiteMapPage)Process() (pages []Processor) {
   return
 }
 
-func (smp *SiteMapPage)Url() string {
-	return smp.Page.Url
+func (smp *siteMapPage)url() string {
+	return smp.page.url
 }

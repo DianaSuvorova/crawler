@@ -9,51 +9,51 @@ import (
   _ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-type CategoryPage struct {
-  Doc *goquery.Document
-  *Category
+type categoryPage struct {
+  doc *goquery.Document
+  *category
 }
 
-type Category struct {
+type category struct {
   gorm.Model
-  Url string
+  url string
   Items string
 }
 
-func NewCategoryPage(url string) *CategoryPage {
-  cp := new(CategoryPage)
-  cp.Category = new(Category)
-  cp.Category.Url = url
+func NewCategoryPage(url string) *categoryPage {
+  cp := new(categoryPage)
+  cp.category = new(category)
+  cp.category.url = url
   cp.Doc, _ = goquery.NewDocument(url)
 
   return cp
 }
 
-func (cp *CategoryPage)Process() (zero []Processor) {
+func (cp *categoryPage)process() (zero []processor) {
   cp.Doc.Find("div.mt-xs-2 span").Each(func(i int, s *goquery.Selection) {
     match, _ := regexp.MatchString("\\([,0-9]* items\\)", s.Text())
      if (match) {
        result := strings.TrimSpace(s.Text())
-       cp.Category.Items = result
-       cp.Category.write()
+       cp.category.Items = result
+       cp.category.write()
      }
   })
   return
 }
 
-func (cp *CategoryPage)Url() string {
-	return cp.Category.Url
+func (cp *categoryPage)url() string {
+	return cp.category.url
 }
 
-func(c *Category)write() {
-  db, err := gorm.Open("mysql", "--connection tbd")
+func(c *category)write() {
+  db, err := gorm.Open("mysql", "-connection tbd")
   db.LogMode(true)
   if err != nil {
     fmt.Println(err)
   }
   defer db.Close()
+  fmt.Println(c)
+  db.CreateTable(&category{})
 
-  db.CreateTable(&Category{})
-
-  db.Create(c)
+  // db.Create(c)
 }

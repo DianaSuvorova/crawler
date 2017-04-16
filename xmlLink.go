@@ -4,10 +4,10 @@ import (
 	"fmt"
 )
 
-type XmlLink struct {
+type xmlLink struct {
   Url string `xml:"loc"`
 }
 
-func (l XmlLink) String() string {
+func (l xmlLink) String() string {
   return fmt.Sprintf("%s", l.Url)
 }

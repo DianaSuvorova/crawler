@@ -1,17 +1,21 @@
 package main
 
-type Processor interface {
-	Url() (string)
-	Process() ([]Processor)
+import (
+	"fmt"
+)
+
+type processor interface {
+	url() (string)
+	process() ([]processor)
 }
 
 func main() {
 	entryUrl := "https://www.etsy.com/dynamic-sitemaps.xml?sitemap=browseindex"
 
-	entryPage := NewSiteMapMetaPage(entryUrl);
+	entryPage := newSiteMapMetaPage(entryUrl);
 
-	queue := make(chan Processor)
-	filteredQueue := make(chan Processor)
+	queue := make(chan processor)
+	filteredQueue := make(chan processor)
 
 	go filterQueue(queue , filteredQueue);
 	go func() {
@@ -24,19 +28,20 @@ func main() {
 
 }
 
-func enqueue(page Processor, queue chan Processor) {
-	pages := page.Process();
+func enqueue(page processor, queue chan processor) {
+	pages := page.process();
 		for _, addPage := range pages {
-			go func(addPage Processor) {
+			go func(addPage processor) {
 				queue <- addPage
 			}(addPage)
 	}
 }
 
-func filterQueue(in chan Processor, out chan Processor) {
+func filterQueue(in chan processor, out chan processor) {
 	var seen = make(map[string]bool)
 	for page := range in {
-		url := page.Url()
+		url := page.url()
+		fmt.Println(url)
 		if (!seen[url]) {
 			seen[url] = true
 			out <- page

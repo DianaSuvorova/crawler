@@ -4,31 +4,31 @@ import (
 	"encoding/xml"
 )
 
-type SiteMapMetaPage struct {
- *Page
- *SiteMapMeta
+type siteMapMetaPage struct {
+ *page
+ *siteMapMeta
 }
 
-type SiteMapMeta struct {
- Links []XmlLink `xml:"sitemap"`
+type siteMapMeta struct {
+ Links []xmlLink `xml:"sitemap"`
 }
 
-func NewSiteMapMetaPage(url string) *SiteMapMetaPage {
-  smmp := new(SiteMapMetaPage)
-  smmp.Page = NewPage(url)
+func newSiteMapMetaPage(url string) *siteMapMetaPage {
+  smmp := new(siteMapMetaPage)
+  smmp.page = NewPage(url)
 
-  xml.Unmarshal([]byte(smmp.Page.Body), &smmp.SiteMapMeta)
+  xml.Unmarshal([]byte(smmp.page.body), &smmp.siteMapMeta)
   return smmp
 }
 
-func (smmp *SiteMapMetaPage)Process() (siteMapPages []Processor) {
-  for _, link := range smmp.SiteMapMeta.Links {
-    siteMap := NewSiteMapPage(link.String())
+func (smmp *siteMapMetaPage)process() (siteMapPages []processor) {
+  for _, link := range smmp.siteMapMeta.Links {
+    siteMap := newSiteMapPage(link.String())
     siteMapPages = append(siteMapPages, siteMap)
   }
   return
 }
 
-func (smmp *SiteMapMetaPage)Url() string {
-	return smmp.Page.Url
+func (smmp *siteMapMetaPage)url() string {
+	return smmp.page.url
 }
