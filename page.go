@@ -11,7 +11,7 @@ type page struct {
     body string
 }
 
-func NewPage(url string) *page {
+func newPage(url string) *page {
   p := new(page)
   p.url = url
   resp, err := http.Get(url)

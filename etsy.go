@@ -14,7 +14,6 @@ type processor interface {
 	url() (string)
 	process() ([]processor)
 }
-
 func main() {
 	var err error
 	flag.Parse()
@@ -25,41 +24,56 @@ func main() {
 	}
 	defer db.Close()
 
-	entryUrl := "https://www.etsy.com/dynamic-sitemaps.xml?sitemap=browseindex"
+	entryUrl := "https://www.etsy.com/dynamic-sitemaps.xml?sitemap=taxonomyindex"
 
 	entryPage := newSiteMapMetaPage(entryUrl);
 
 	queue := make(chan processor)
 	filteredQueue := make(chan processor)
+	todoQueue := make(chan int)
 
-	go filterQueue(queue , filteredQueue);
+	go filterQueue(queue, filteredQueue, todoQueue);
+	go closeQueue(filteredQueue, todoQueue);
 	go func() {
 		queue <- entryPage
 	}()
 
 	for page := range filteredQueue {
-		enqueue(page, queue)
-	}
-
-}
-
-func enqueue(page processor, queue chan processor) {
-	pages := page.process();
-		for _, addPage := range pages {
-			go func(addPage processor) {
-				queue <- addPage
-			}(addPage)
+		enqueue(page, queue, todoQueue)
 	}
 }
 
-func filterQueue(in chan processor, out chan processor) {
+
+func closeQueue(filteredQueue chan processor, todoQueue chan int) {
+	todo:=1
+	for i := range todoQueue {
+		todo += i
+		if (todo == 0) {
+			close(filteredQueue)
+		}
+	}
+}
+
+func enqueue(page processor, queue chan processor, todoQueue chan int) {
+	pages := page.process()
+	for _, addPage := range pages {
+		todoQueue <- 1
+		go func(addPage processor) {
+			queue <- addPage
+		}(addPage)
+	}
+	todoQueue <- -1
+}
+
+func filterQueue(in chan processor, out chan processor, todoQueue chan int) {
 	var seen = make(map[string]bool)
 	for page := range in {
 		url := page.url()
-		fmt.Println(url)
 		if (!seen[url]) {
 			seen[url] = true
 			out <- page
+		} else {
+			todoQueue <- -1
 		}
 	}
 }

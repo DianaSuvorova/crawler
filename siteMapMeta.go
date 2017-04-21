@@ -15,7 +15,7 @@ type siteMapMeta struct {
 
 func newSiteMapMetaPage(url string) *siteMapMetaPage {
   smmp := new(siteMapMetaPage)
-  smmp.page = NewPage(url)
+  smmp.page = newPage(url)
 
   xml.Unmarshal([]byte(smmp.page.body), &smmp.siteMapMeta)
   return smmp

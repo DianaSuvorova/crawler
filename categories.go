@@ -20,7 +20,7 @@ type category struct {
   Items int
 }
 
-func NewCategoryPage(url string) *categoryPage {
+func newCategoryPage(url string) *categoryPage {
   cp := new(categoryPage)
   cp.category = new(category)
   cp.category.Url = url
@@ -51,5 +51,5 @@ func (cp *categoryPage)url() string {
 func(c *category)write() {
   //db.CreateTable(&category{})
   fmt.Println(c)
-  db.Create(c)
+  //db.Create(c)
 }
