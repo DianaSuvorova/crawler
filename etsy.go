@@ -34,37 +34,22 @@ func main() {
 	filteredQueue := make(chan processor)
 	todoQueue := make(chan int)
 
-	go filterQueue(queue, filteredQueue, todoQueue);
-	go closeQueue(filteredQueue, todoQueue);
+	go filterQueue(queue, filteredQueue, todoQueue)
+	closer := newQueueCloser(filteredQueue)
 	go func() {
-		todoQueue <- 1
+		closer.increment()
 		queue <- entryPage
 	}()
 
 	for page := range filteredQueue {
-		enqueue(page, queue, todoQueue)
-		todoQueue <- -1
-	}
-}
-
-
-func closeQueue(filteredQueue chan processor, todoQueue chan int) {
-	todo:=0
-	for i := range todoQueue {
-		todo += i
-		if (todo == 0) {
-			close(filteredQueue)
+		pages := page.process()
+		for _, addPage := range pages {
+			closer.increment()
+			go func(addPage processor) {
+				queue <- addPage
+			}(addPage)
 		}
-	}
-}
-
-func enqueue(page processor, queue chan processor, todoQueue chan int) {
-	pages := page.process()
-	for _, addPage := range pages {
-		todoQueue <- 1
-		go func(addPage processor) {
-			queue <- addPage
-		}(addPage)
+		closer.decrement()
 	}
 }
 
