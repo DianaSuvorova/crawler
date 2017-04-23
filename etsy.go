@@ -20,8 +20,7 @@ type processor interface {
 func main() {
 	var err error
 	flag.Parse()
-	// connection := flag.Args()[0]
-	connection := "boris:B@ckspace123@tcp(54.215.211.253:3306)/etsy"
+	connection := flag.Args()[0]
 	db, err = gorm.Open("mysql", connection)
 	if err != nil {
 		fmt.Println(err)
