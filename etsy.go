@@ -14,6 +14,8 @@ type processor interface {
 	url() (string)
 	process() ([]processor)
 }
+
+
 func main() {
 	var err error
 	flag.Parse()
@@ -35,17 +37,19 @@ func main() {
 	go filterQueue(queue, filteredQueue, todoQueue);
 	go closeQueue(filteredQueue, todoQueue);
 	go func() {
+		todoQueue <- 1
 		queue <- entryPage
 	}()
 
 	for page := range filteredQueue {
 		enqueue(page, queue, todoQueue)
+		todoQueue <- -1
 	}
 }
 
 
 func closeQueue(filteredQueue chan processor, todoQueue chan int) {
-	todo:=1
+	todo:=0
 	for i := range todoQueue {
 		todo += i
 		if (todo == 0) {
@@ -62,7 +66,6 @@ func enqueue(page processor, queue chan processor, todoQueue chan int) {
 			queue <- addPage
 		}(addPage)
 	}
-	todoQueue <- -1
 }
 
 func filterQueue(in chan processor, out chan processor, todoQueue chan int) {
@@ -72,8 +75,6 @@ func filterQueue(in chan processor, out chan processor, todoQueue chan int) {
 		if (!seen[url]) {
 			seen[url] = true
 			out <- page
-		} else {
-			todoQueue <- -1
 		}
 	}
 }
