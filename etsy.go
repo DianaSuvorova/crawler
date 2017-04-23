@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"flag"
+	"crawler/queueCloser"
 )
 
 var db *gorm.DB
@@ -19,7 +20,8 @@ type processor interface {
 func main() {
 	var err error
 	flag.Parse()
-	connection := flag.Args()[0]
+	// connection := flag.Args()[0]
+	connection := "boris:B@ckspace123@tcp(54.215.211.253:3306)/etsy"
 	db, err = gorm.Open("mysql", connection)
 	if err != nil {
 		fmt.Println(err)
@@ -35,23 +37,32 @@ func main() {
 }
 
 func processFilteredQueue(filteredQueue chan processor, queue chan processor) {
-	closer := newQueueCloser(filteredQueue)
+	closer := queueCloser.NewQueueCloser()
 
 	entryUrl := "https://www.etsy.com/dynamic-sitemaps.xml?sitemap=taxonomyindex"
 	entryPage := newSiteMapMetaPage(entryUrl);
 
-	closer.increment()
+	closer.Increment()
 	queue <- entryPage
+	go func () {
+		quit := <- closer.Quit
+		if (quit) {
+			close(filteredQueue)
+		}
+	}()
+
+
 	for page := range filteredQueue {
 		pages := page.process()
 		for _, addPage := range pages {
-			closer.increment()
+			closer.Increment()
 			go func(addPage processor) {
 				queue <- addPage
 		 }(addPage)
 		}
-		closer.decrement()
+		closer.Decrement()
 	}
+
 }
 
 func filterQueue(queue chan processor, filteredQueue chan processor) {
