@@ -15,6 +15,7 @@ type processor interface {
 	process() ([]processor)
 }
 
+
 func main() {
 	var err error
 	flag.Parse()
@@ -25,41 +26,43 @@ func main() {
 	}
 	defer db.Close()
 
-	entryUrl := "https://www.etsy.com/dynamic-sitemaps.xml?sitemap=browseindex"
-
-	entryPage := newSiteMapMetaPage(entryUrl);
-
 	queue := make(chan processor)
 	filteredQueue := make(chan processor)
 
-	go filterQueue(queue , filteredQueue);
-	go func() {
-		queue <- entryPage
-	}()
-
-	for page := range filteredQueue {
-		enqueue(page, queue)
-	}
+	go filterQueue(queue, filteredQueue)
+	processFilteredQueue(filteredQueue, queue)
 
 }
 
-func enqueue(page processor, queue chan processor) {
-	pages := page.process();
+func processFilteredQueue(filteredQueue chan processor, queue chan processor) {
+	closer := newQueueCloser(filteredQueue)
+
+	entryUrl := "https://www.etsy.com/dynamic-sitemaps.xml?sitemap=taxonomyindex"
+	entryPage := newSiteMapMetaPage(entryUrl);
+
+	closer.increment()
+	queue <- entryPage
+	for page := range filteredQueue {
+		pages := page.process()
 		for _, addPage := range pages {
+			closer.increment()
 			go func(addPage processor) {
 				queue <- addPage
-			}(addPage)
+		 }(addPage)
+		}
+		closer.decrement()
 	}
 }
 
-func filterQueue(in chan processor, out chan processor) {
+func filterQueue(queue chan processor, filteredQueue chan processor) {
 	var seen = make(map[string]bool)
-	for page := range in {
+	for page := range queue {
 		url := page.url()
-		fmt.Println(url)
 		if (!seen[url]) {
 			seen[url] = true
-			out <- page
+			go func(page processor) {
+				filteredQueue <- page
+			}(page)
 		}
 	}
 }
