@@ -26,40 +26,43 @@ func main() {
 	}
 	defer db.Close()
 
-	entryUrl := "https://www.etsy.com/dynamic-sitemaps.xml?sitemap=taxonomyindex"
-
-	entryPage := newSiteMapMetaPage(entryUrl);
-
 	queue := make(chan processor)
 	filteredQueue := make(chan processor)
-	todoQueue := make(chan int)
 
-	go filterQueue(queue, filteredQueue, todoQueue)
+	go filterQueue(queue, filteredQueue)
+	processFilteredQueue(filteredQueue, queue)
+
+}
+
+func processFilteredQueue(filteredQueue chan processor, queue chan processor) {
 	closer := newQueueCloser(filteredQueue)
-	go func() {
-		closer.increment()
-		queue <- entryPage
-	}()
 
+	entryUrl := "https://www.etsy.com/dynamic-sitemaps.xml?sitemap=taxonomyindex"
+	entryPage := newSiteMapMetaPage(entryUrl);
+
+	closer.increment()
+	queue <- entryPage
 	for page := range filteredQueue {
 		pages := page.process()
 		for _, addPage := range pages {
 			closer.increment()
 			go func(addPage processor) {
 				queue <- addPage
-			}(addPage)
+		 }(addPage)
 		}
 		closer.decrement()
 	}
 }
 
-func filterQueue(in chan processor, out chan processor, todoQueue chan int) {
+func filterQueue(queue chan processor, filteredQueue chan processor) {
 	var seen = make(map[string]bool)
-	for page := range in {
+	for page := range queue {
 		url := page.url()
 		if (!seen[url]) {
 			seen[url] = true
-			out <- page
+			go func(page processor) {
+				filteredQueue <- page
+			}(page)
 		}
 	}
 }

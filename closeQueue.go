@@ -22,7 +22,7 @@ func (q *queueCloser) decrement() {
   q.todoQueue <- -1
 }
 
-func (q *queueCloser)watch() {
+func (q *queueCloser) watch() {
   todo := 0
   for i:= range q.todoQueue {
     todo += i
@@ -30,5 +30,4 @@ func (q *queueCloser)watch() {
       close(q.queue)
     }
   }
-
 }
