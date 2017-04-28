@@ -4,6 +4,11 @@ import (
 	"encoding/xml"
 )
 
+type processor interface {
+	url() (string)
+	process() ([]processor)
+}
+
 type siteMapMetaPage struct {
  *page
  *siteMapMeta
