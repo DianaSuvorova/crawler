@@ -15,7 +15,7 @@ type siteMap struct {
 
 func newSiteMapPage(url string) *siteMapPage {
   smp := new(siteMapPage)
-  smp.page = newPage(url);
+  smp.page = newPage(url)
 
 
   xml.Unmarshal([]byte(smp.page.body), &smp.siteMap)
@@ -25,7 +25,9 @@ func newSiteMapPage(url string) *siteMapPage {
 func (smp *siteMapPage)process() (pages []processor) {
 	if (len(smp.Links) > 0) {
 		link := smp.Links[0].String()
-		page := newCategoryPage(link)
+		print(link)
+		page := newListingPage(link)
+		// page := newCategoryPage(link)
 		pages = append(pages, page)
 	}
   return

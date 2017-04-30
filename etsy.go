@@ -10,8 +10,6 @@ import (
 var db *gorm.DB
 
 
-
-
 func main() {
 	var err error
 	flag.Parse()
@@ -22,9 +20,8 @@ func main() {
 	}
 	defer db.Close()
 
-	entryUrl := "https://www.etsy.com/dynamic-sitemaps.xml?sitemap=taxonomyindex"
-	entryPage := newSiteMapMetaPage(entryUrl);
+	entryUrl := "https://www.etsy.com/robots.txt"
+	entryPage := newRobotsPage(entryUrl)
 
-	newQueuer(entryPage)
-
+	startQueuer(entryPage)
 }

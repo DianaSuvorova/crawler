@@ -4,7 +4,7 @@ import (
   "crawler/queueCloser"
 )
 
-func newQueuer(entryPage processor) {
+func startQueuer(entryPage processor) {
   queue := make(chan processor)
 	filteredQueue := make(chan processor)
 
