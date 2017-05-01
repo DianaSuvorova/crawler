@@ -3,6 +3,7 @@ package main
 import (
   "github.com/jinzhu/gorm"
   "github.com/PuerkitoBio/goquery"
+  "fmt"
 )
 
 type listingPage struct {
@@ -32,7 +33,9 @@ func newListingPage(url string) *listingPage {
 func (lp *listingPage)process() (zero []processor) {
   first := lp.doc.Find("div.shop-name a").First()
   shop := new(shopSource);
-  shop.Url, _ = first.Attr("href")
+  href, _ := first.Attr("href")
+  fmt.Println("listing: ", href)
+  shop.Url = href
   // db.CreateTable(&shopSource{})
   db.Create(shop)
   return
