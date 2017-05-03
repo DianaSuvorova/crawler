@@ -3,7 +3,6 @@ package main
 import (
   "github.com/jinzhu/gorm"
   "github.com/PuerkitoBio/goquery"
-  "fmt"
 )
 
 type listingPage struct {

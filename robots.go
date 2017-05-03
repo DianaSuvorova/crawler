@@ -3,7 +3,6 @@ package main
 import (
     "regexp"
     "fmt"
-    "reflect"
 )
 
 type robotsPage struct {
