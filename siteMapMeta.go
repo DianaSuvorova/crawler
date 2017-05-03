@@ -30,7 +30,6 @@ func newSiteMapMetaPage(url string) *siteMapMetaPage {
 func (smmp *siteMapMetaPage)process() (siteMapPages []processor) {
 	print("process siteMapMeta")
   for _, link := range smmp.siteMapMeta.Links {
-		fmt.Println("siteMapMetaPage: ", link.String()	)
     siteMap := newSiteMapPage(link.String())
     siteMapPages = append(siteMapPages, siteMap)
   }

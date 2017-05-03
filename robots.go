@@ -29,9 +29,12 @@ func (rp *robotsPage) getShopListingSiteMaps() {
     fmt.Println(err)
   }
   res := re.FindAllStringSubmatch(rp.body, -1)
-  fmt.Println(reflect.TypeOf(res[0]))
-  for _, r := range res {
+  //1100 total
+  for i, r := range res {
     rp.robots.shopListingSiteMaps = append(rp.robots.shopListingSiteMaps, r[1])
+    if ( i > 90 ) {
+      break;
+    }
   }
 }
 

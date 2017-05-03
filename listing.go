@@ -34,7 +34,6 @@ func (lp *listingPage)process() (zero []processor) {
   first := lp.doc.Find("div.shop-name a").First()
   shop := new(shopSource);
   href, _ := first.Attr("href")
-  fmt.Println("listing: ", href)
   shop.Url = href
   // db.CreateTable(&shopSource{})
   db.Create(shop)
