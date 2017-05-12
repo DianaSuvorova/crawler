@@ -24,12 +24,25 @@ func newListingPage(url string) *listingPage {
   lp := new(listingPage)
   lp.listing = new(listing)
   lp.listing.url = url
-  lp.doc, _ = goquery.NewDocument(url)
-
+  
   return lp
 }
 
+func (lp *listingPage) fetch() {
+  done := make(chan bool);
+  go func () {
+    lp.doc, _ = goquery.NewDocument(lp.listing.url)
+  }();
+  for {
+    select {
+      case  <- done:
+        return;
+    }
+  }
+}
+
 func (lp *listingPage)process() (zero []processor) {
+  lp.fetch();
   first := lp.doc.Find("div.shop-name a").First()
   shop := new(shopSource);
   href, _ := first.Attr("href")

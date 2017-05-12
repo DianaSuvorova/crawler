@@ -1,9 +1,16 @@
 package queueCloser
 
+import (
+  "fmt"
+)
+
 type QueueCloser struct {
   Quit chan bool
+  Pause chan bool
+  Resume chan bool
   todoQueue chan int
   todo int
+  paused bool
 }
 
 func NewQueueCloser() *QueueCloser {
@@ -31,8 +38,17 @@ func (q *QueueCloser) Todo() int {
 func (q *QueueCloser) watch() {
   for i := range q.todoQueue {
     q.todo += i
+    fmt.Println(q.todo)
     if (q.todo == 0) {
       q.Quit <- true
+    } else if (q.todo > 100) {
+      q.Pause <- true
+      q.paused = true
+    } else {
+      if (q.paused) {
+        q.Resume <- true
+        q.paused = false
+      }
     }
   }
 }

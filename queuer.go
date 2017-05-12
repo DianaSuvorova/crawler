@@ -14,40 +14,43 @@ func startQueuer(entryPage processor) {
 }
 
 func processFilteredQueue(filteredQueue chan processor, queue chan processor, entryPage processor) {
-	closer := queueCloser.NewQueueCloser()
+  backup := filteredQueue;
 
 	closer.Increment()
 	queue <- entryPage
-	go func () {
-		quit := <- closer.Quit
-		if (quit) {
-			close(filteredQueue)
-		}
-	}()
-
-
-	for page := range filteredQueue {
-		pages := page.process()
-		for _, addPage := range pages {
-			closer.Increment()
-			go func(addPage processor) {
-				queue <- addPage
-		 }(addPage)
-		}
-		closer.Decrement()
-	}
-
+  for {
+    select {
+      case page := <- filteredQueue:
+        pages := page.process()
+        for _, addPage := range pages {
+          closer.Increment()
+          queue <- addPage
+        }
+        closer.Decrement()
+      case <- closer.Quit:
+        close(filteredQueue)
+        return;
+    }
+  }
 }
 
 func filterQueue(queue chan processor, filteredQueue chan processor) {
+  backup := queue;
 	var seen = make(map[string]bool)
-	for page := range queue {
-		url := page.url()
-		if (!seen[url]) {
-			seen[url] = true
-			go func(page processor) {
-				filteredQueue <- page
-			}(page)
-		}
-	}
+  for {
+    select {
+      case page := <- queue:
+        url := page.url()
+        if (!seen[url]) {
+          seen[url] = true
+          go func(page processor) {
+            filteredQueue <- page
+          }(page)
+        }
+      case <- closer.Pause:
+          queue = nil;
+      case <- closer.Resume:
+          queue = backup;
+    }
+  }
 }

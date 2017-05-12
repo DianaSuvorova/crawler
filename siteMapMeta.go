@@ -4,11 +4,6 @@ import (
 	"encoding/xml"
 )
 
-type processor interface {
-	url() (string)
-	process() ([]processor)
-}
-
 type siteMapMetaPage struct {
  *page
  *siteMapMeta
@@ -20,19 +15,18 @@ type siteMapMeta struct {
 
 func newSiteMapMetaPage(url string) *siteMapMetaPage {
   smmp := new(siteMapMetaPage)
-  smmp.page = newPage(url)
-
-  xml.Unmarshal([]byte(smmp.page.body), &smmp.siteMapMeta)
+	smmp.page = newPage(url)
   return smmp
 }
 
-func (smmp *siteMapMetaPage)process() (siteMapPages []processor) {
-	print("process siteMapMeta")
-  for _, link := range smmp.siteMapMeta.Links {
-    siteMap := newSiteMapPage(link.String())
-    siteMapPages = append(siteMapPages, siteMap)
-  }
-  return
+func (smmp *siteMapMetaPage) process() (siteMapPages []processor) {
+	smmp.page.fetch();
+	xml.Unmarshal([]byte(smmp.page.body), &smmp.siteMapMeta)
+	for _, link := range smmp.siteMapMeta.Links {
+		siteMap := newSiteMapPage(link.String())
+		siteMapPages = append(siteMapPages, siteMap)
+	}
+	return
 }
 
 func (smmp *siteMapMetaPage)url() string {

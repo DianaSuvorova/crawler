@@ -17,12 +17,13 @@ func newSiteMapPage(url string) *siteMapPage {
   smp := new(siteMapPage)
   smp.page = newPage(url)
 
-
-  xml.Unmarshal([]byte(smp.page.body), &smp.siteMap)
   return smp
 }
 
 func (smp *siteMapPage)process() (pages []processor) {
+	smp.page.fetch();
+	xml.Unmarshal([]byte(smp.page.body), &smp.siteMap)
+
 	if (len(smp.Links) > 0) {
 		link := smp.Links[0].String()
 		page := newListingPage(link)
