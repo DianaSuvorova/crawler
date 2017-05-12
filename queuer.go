@@ -14,7 +14,8 @@ func startQueuer(entryPage processor) {
 }
 
 func processFilteredQueue(filteredQueue chan processor, queue chan processor, entryPage processor) {
-  backup := filteredQueue;
+
+  closer := queueCloser.NewQueueCloser()
 
 	closer.Increment()
 	queue <- entryPage
@@ -35,7 +36,6 @@ func processFilteredQueue(filteredQueue chan processor, queue chan processor, en
 }
 
 func filterQueue(queue chan processor, filteredQueue chan processor) {
-  backup := queue;
 	var seen = make(map[string]bool)
   for {
     select {
@@ -47,10 +47,6 @@ func filterQueue(queue chan processor, filteredQueue chan processor) {
             filteredQueue <- page
           }(page)
         }
-      case <- closer.Pause:
-          queue = nil;
-      case <- closer.Resume:
-          queue = backup;
     }
   }
 }

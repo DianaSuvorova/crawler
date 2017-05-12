@@ -41,7 +41,7 @@ func (q *QueueCloser) watch() {
     fmt.Println(q.todo)
     if (q.todo == 0) {
       q.Quit <- true
-    } else if (q.todo > 100) {
+    } else if (q.todo > 5) {
       q.Pause <- true
       q.paused = true
     } else {
