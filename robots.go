@@ -30,7 +30,7 @@ func (rp *robotsPage) getShopListingSiteMaps() {
   }
   res := re.FindAllStringSubmatch(rp.body, -1)
   //1100 total
-  for i, r := range res {
+  for _,r := range res {
     rp.robots.shopListingSiteMaps = append(rp.robots.shopListingSiteMaps, r[1])
   }
 }
