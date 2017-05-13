@@ -30,7 +30,7 @@ func (p *page) fetch() {
     buf.ReadFrom(resp.Body)
     p.body = buf.String()
     defer resp.Body.Close()
-    done <- true;
+    done <- true
   }();
 
   for {

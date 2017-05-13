@@ -5,8 +5,8 @@ import (
 )
 
 func startQueuer(entryPage processor) {
-  queue := make(chan processor)
-	filteredQueue := make(chan processor)
+  queue := make(chan processor, 10000)
+	filteredQueue := make(chan processor, 10000)
 
 	go filterQueue(queue, filteredQueue)
 	processFilteredQueue(filteredQueue, queue, entryPage)
@@ -14,7 +14,6 @@ func startQueuer(entryPage processor) {
 }
 
 func processFilteredQueue(filteredQueue chan processor, queue chan processor, entryPage processor) {
-
   closer := queueCloser.NewQueueCloser()
 
 	closer.Increment()
@@ -24,8 +23,12 @@ func processFilteredQueue(filteredQueue chan processor, queue chan processor, en
       case page := <- filteredQueue:
         pages := page.process()
         for _, addPage := range pages {
-          closer.Increment()
-          queue <- addPage
+          go func (addPage processor) {
+            println(addPage.url())
+            closer.Increment()
+            queue <- addPage
+            println("todo: ", closer.Todo())
+          }(addPage);
         }
         closer.Decrement()
       case <- closer.Quit:

@@ -24,7 +24,7 @@ func newListingPage(url string) *listingPage {
   lp := new(listingPage)
   lp.listing = new(listing)
   lp.listing.url = url
-  
+
   return lp
 }
 
@@ -32,6 +32,7 @@ func (lp *listingPage) fetch() {
   done := make(chan bool);
   go func () {
     lp.doc, _ = goquery.NewDocument(lp.listing.url)
+    done <- true
   }();
   for {
     select {

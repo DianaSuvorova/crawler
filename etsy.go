@@ -6,7 +6,6 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"flag"
-	"runtime"
 )
 
 var db *gorm.DB
@@ -18,7 +17,6 @@ func main() {
 	connection := "boris:B@ckspace123@tcp(54.215.211.253:3306)/etsy"
 	//flag.Args()[0]
 	db, err = gorm.Open("mysql", connection)
-	print("goroutines: ", runtime.NumGoroutine())
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -27,6 +25,8 @@ func main() {
 	entryUrl := "https://www.etsy.com/robots.txt"
 	entryPage := newRobotsPage(entryUrl)
 
+	// entryUrl := "https://www.etsy.com/listing/521442201/maui-sunrise-2"
+	// entryPage := newListingPage(entryUrl)
+
 	startQueuer(entryPage)
-	print("goroutines: ", runtime.NumGoroutine())
 }

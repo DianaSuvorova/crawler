@@ -32,15 +32,6 @@ func (rp *robotsPage) getShopListingSiteMaps() {
   //1100 total
   for i, r := range res {
     rp.robots.shopListingSiteMaps = append(rp.robots.shopListingSiteMaps, r[1])
-    if ( i < 0 ) {
-        continue
-          print("continue")
-          print(i)
-      } else if (i > 1) {
-          print("break")
-        break
-      }
-
   }
 }
 
