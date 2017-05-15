@@ -22,7 +22,7 @@ func newSiteMapPage(url string) *siteMapPage {
 
 func (smp *siteMapPage)process() (pages []processor) {
 	success := smp.page.fetch();
-		{
+	if (success) {
 		xml.Unmarshal([]byte(smp.page.body), &smp.siteMap)
 
 		if (len(smp.Links) > 0) {
@@ -31,8 +31,6 @@ func (smp *siteMapPage)process() (pages []processor) {
 			// page := newCategoryPage(link)
 			pages = append(pages, page)
 		}
-	} else {
-		println("not success")
 	}
   return
 }
