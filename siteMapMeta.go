@@ -20,11 +20,13 @@ func newSiteMapMetaPage(url string) *siteMapMetaPage {
 }
 
 func (smmp *siteMapMetaPage) process() (siteMapPages []processor) {
-	smmp.page.fetch();
-	xml.Unmarshal([]byte(smmp.page.body), &smmp.siteMapMeta)
-	for _, link := range smmp.siteMapMeta.Links {
-		siteMap := newSiteMapPage(link.String())
-		siteMapPages = append(siteMapPages, siteMap)
+	success := smmp.page.fetch();
+	if success {
+		xml.Unmarshal([]byte(smmp.page.body), &smmp.siteMapMeta)
+		for _, link := range smmp.siteMapMeta.Links {
+			siteMap := newSiteMapPage(link.String())
+			siteMapPages = append(siteMapPages, siteMap)
+		}
 	}
 	return
 }

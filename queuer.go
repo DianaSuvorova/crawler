@@ -1,41 +1,45 @@
 package main
 
 import (
-  "crawler/queueCloser"
+  "runtime"
+  "log"
 )
 
 func startQueuer(entryPage processor) {
-  queue := make(chan processor, 10000)
+  queue := make(chan processor)
 	filteredQueue := make(chan processor, 10000)
 
-	go filterQueue(queue, filteredQueue)
+  go filterQueue(queue, filteredQueue)
 	processFilteredQueue(filteredQueue, queue, entryPage)
 
 }
 
 func processFilteredQueue(filteredQueue chan processor, queue chan processor, entryPage processor) {
-  closer := queueCloser.NewQueueCloser()
+  wg.Add(1)
+  go func() {
+    queue <- entryPage
+  }()
 
-	closer.Increment()
-	queue <- entryPage
-  for {
-    select {
-      case page := <- filteredQueue:
-        pages := page.process()
+  for i := 0; i < 1000; i++ {
+    go func() {
+      for page := range filteredQueue {
+        var mem runtime.MemStats
+         runtime.ReadMemStats(&mem)
+         log.Println("sys mem MB: ",mem.Sys / (1024 * 1024))
+         log.Println(page.url())
+         log.Println("numRoutines", runtime.NumGoroutine())
+          pages := page.process()
         for _, addPage := range pages {
-          go func (addPage processor) {
-            println(addPage.url())
-            closer.Increment()
-            queue <- addPage
-            println("todo: ", closer.Todo())
-          }(addPage);
+
+          queue <- addPage
+          wg.Add(1)
         }
-        closer.Decrement()
-      case <- closer.Quit:
-        close(filteredQueue)
-        return;
-    }
+        wg.Done()
+        }
+    }()
   }
+  wg.Wait()
+
 }
 
 func filterQueue(queue chan processor, filteredQueue chan processor) {
@@ -46,9 +50,7 @@ func filterQueue(queue chan processor, filteredQueue chan processor) {
         url := page.url()
         if (!seen[url]) {
           seen[url] = true
-          go func(page processor) {
-            filteredQueue <- page
-          }(page)
+          filteredQueue <- page
         }
     }
   }

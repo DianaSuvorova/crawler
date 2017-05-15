@@ -19,24 +19,26 @@ func newPage(url string) *page {
   return p
 }
 
-func (p *page) fetch() {
+func (p *page) fetch() (bool) {
   done := make(chan bool);
   go func () {
     resp, err := http.Get(p.url)
     if err != nil {
-      log.Fatal(err)
+      panic(err)
+      done <- false
+    } else {
+      buf := new(bytes.Buffer)
+      buf.ReadFrom(resp.Body)
+      p.body = buf.String()
+      defer resp.Body.Close()
+      done <- true
     }
-    buf := new(bytes.Buffer)
-    buf.ReadFrom(resp.Body)
-    p.body = buf.String()
-    defer resp.Body.Close()
-    done <- true
   }();
 
   for {
 		select {
-      case  <- done:
-        return;
+    case success := <- done:
+        return success;
     }
   }
 }

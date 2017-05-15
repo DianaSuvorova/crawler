@@ -30,17 +30,27 @@ func (rp *robotsPage) getShopListingSiteMaps() {
   }
   res := re.FindAllStringSubmatch(rp.body, -1)
   //1100 total
-  for _,r := range res {
+  for _, r := range res {
     rp.robots.shopListingSiteMaps = append(rp.robots.shopListingSiteMaps, r[1])
+    // if ( i < 0 ) {
+    //     continue
+    //       print("continue")
+    //       print(i)
+    //   } else if (i > 1) {
+    //       print("break")
+    //     break
+    //   }
   }
 }
 
 func (rp *robotsPage) process() (siteMapMetaPages []processor) {
-  rp.page.fetch();
-  rp.getShopListingSiteMaps()
-  for _, link := range rp.robots.shopListingSiteMaps {
-    fmt.Println(link)
-    siteMapMetaPages = append(siteMapMetaPages, newSiteMapMetaPage(link))
+  success := rp.page.fetch();
+  if (success) {
+    rp.getShopListingSiteMaps()
+    for _, link := range rp.robots.shopListingSiteMaps {
+      fmt.Println(link)
+      siteMapMetaPages = append(siteMapMetaPages, newSiteMapMetaPage(link))
+    }
   }
   return
 }

@@ -21,14 +21,18 @@ func newSiteMapPage(url string) *siteMapPage {
 }
 
 func (smp *siteMapPage)process() (pages []processor) {
-	smp.page.fetch();
-	xml.Unmarshal([]byte(smp.page.body), &smp.siteMap)
+	success := smp.page.fetch();
+		{
+		xml.Unmarshal([]byte(smp.page.body), &smp.siteMap)
 
-	if (len(smp.Links) > 0) {
-		link := smp.Links[0].String()
-		page := newListingPage(link)
-		// page := newCategoryPage(link)
-		pages = append(pages, page)
+		if (len(smp.Links) > 0) {
+			link := smp.Links[0].String()
+			page := newListingPage(link)
+			// page := newCategoryPage(link)
+			pages = append(pages, page)
+		}
+	} else {
+		println("not success")
 	}
   return
 }
