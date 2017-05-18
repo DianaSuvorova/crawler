@@ -7,7 +7,8 @@ import (
 
 func startQueuer(entryPage processor) {
   queue := make(chan processor)
-	filteredQueue := make(chan processor, 10000)
+	filteredQueue := make(chan processor, 10000000)
+
 
   go filterQueue(queue, filteredQueue)
 	processFilteredQueue(filteredQueue, queue, entryPage)
@@ -20,7 +21,7 @@ func processFilteredQueue(filteredQueue chan processor, queue chan processor, en
     queue <- entryPage
   }()
 
-  for i := 0; i < 1000; i++ {
+  for i := 0; i < 99; i++ {
     go func() {
       for page := range filteredQueue {
         var mem runtime.MemStats
@@ -28,6 +29,7 @@ func processFilteredQueue(filteredQueue chan processor, queue chan processor, en
          log.Println("sys mem MB: ",mem.Sys / (1024 * 1024))
          log.Println(page.url())
          log.Println("numRoutines", runtime.NumGoroutine())
+         log.Println("length of the filteredQueue", len(filteredQueue))
           pages := page.process()
         for _, addPage := range pages {
 

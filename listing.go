@@ -28,28 +28,10 @@ func newListingPage(url string) *listingPage {
   return lp
 }
 
-func (lp *listingPage) fetch() (bool) {
-  done := make(chan bool);
-  go func () {
-    var err error
-    lp.doc, err = goquery.NewDocument(lp.listing.url)
-    if (err == nil) {
-      done <- true
-    } else {
-      done <- false
-    }
-  }();
-  for {
-    select {
-    case  success:= <- done:
-        return success;
-    }
-  }
-}
-
-func (lp *listingPage)process() (zero []processor) {
-  success := lp.fetch();
-  if (success) {
+func (lp *listingPage) process() (zero []processor) {
+  var err error;
+  lp.doc, err = goquery.NewDocument(lp.listing.url)
+  if (err == nil) {
     first := lp.doc.Find("div.shop-name a").First()
     shop := new(shopSource);
     href, _ := first.Attr("href")

@@ -7,6 +7,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"flag"
 	"sync"
+	_ "runtime/race"
 )
 
 var db *gorm.DB
@@ -17,7 +18,6 @@ func main() {
 	var err error
 	flag.Parse()
 	connection := flag.Args()[0]
-	//"boris:B@ckspace123@tcp(54.215.211.253:3306)/etsy"
 
 	db, err = gorm.Open("mysql", connection)
 	if err != nil {
