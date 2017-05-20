@@ -18,6 +18,7 @@ type listing struct {
 type shopSource struct {
   gorm.Model
   Url string `gorm:"unique_index"`
+  Joined string
 }
 
 func newListingPage(url string) *listingPage {
