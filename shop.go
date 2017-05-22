@@ -34,15 +34,18 @@ func (sp * shopPage) process() {
   sp.doc, err = goquery.NewDocument(sp.shopRecord.Url)
   if (err == nil) {
     info := sp.doc.Find(".show-lg .trust-signal-row")
-
-    sold := info.Find(".mr-xs-2.pr-xs-2.br-xs-1").Last().Text()
-    re := regexp.MustCompile("([0-9]+)")
-    totalNumSold, _ := strconv.Atoi(re.FindAllString(sold, -1)[0])
-    sp.shopRecord.TotalNumSold = totalNumSold
-    joined := strings.Replace(info.Find(".etsy-since").Text(), "On Etsy since", "", -1)
-    sp.shopSource.Joined = joined;
-    db.CreateTable(&shopRecord{})
-    // db.Create(sp.shopRecord)
-    db.Save(sp.shopSource)
+    if (info.Length() == 0) {
+      sp.shopSource.Deleted = true;
+      db.Save(sp.shopSource)
+    } else {
+      sold := info.Find(".mr-xs-2.pr-xs-2.br-xs-1").Last().Text()
+      re := regexp.MustCompile("([0-9]+)")
+      totalNumSold, _ := strconv.Atoi(re.FindAllString(sold, -1)[0])
+      sp.shopRecord.TotalNumSold = totalNumSold
+      joined := strings.Replace(info.Find(".etsy-since").Text(), "On Etsy since", "", -1)
+      sp.shopSource.Joined = joined;
+      //db.CreateTable(&shopRecord{})
+      db.Create(sp.shopRecord)
+    }
   }
 }

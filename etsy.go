@@ -23,6 +23,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	defer db.Close()
 
 	// entryUrl := "https://www.etsy.com/robots.txt"
