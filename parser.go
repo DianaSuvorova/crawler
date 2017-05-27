@@ -6,7 +6,7 @@ import (
 )
 
 
-func startParsing () {
+func startParsing (runId uint) {
   sources := []shopSource{}
   //  db.Where("Id < ?", 222).Find(&sources)
   //db.Find(&sources)
@@ -14,18 +14,18 @@ func startParsing () {
   //db.Where("deleted IS NULL and joined IS NULL").Find(&sources)
   println("sources", len(sources))
   sourcesChan := make(chan shopSource, len(sources))
-  for  _, source := range sources {
+  for  _, source := range sources[:2] {
     sourcesChan <- source
     wg.Add(1)
   }
-  processPages(sourcesChan);
+  processPages(sourcesChan, runId);
 }
 
-func processPages(sourcesChan chan shopSource) {
+func processPages(sourcesChan chan shopSource, runId uint) {
   for i := 0; i < 99; i++ {
     go func() {
       for source := range sourcesChan {
-        page := newShopPage(source)
+        page := newShopPage(source, runId)
 
          var mem runtime.MemStats
          runtime.ReadMemStats(&mem)

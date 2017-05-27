@@ -16,7 +16,10 @@ var wg sync.WaitGroup
 func main() {
 	var err error
 	flag.Parse()
-	connection := flag.Args()[0]
+	flags := flag.Args()
+	connection := flags[0]
+	option := flags[1]
+
 
 	db, err = gorm.Open("mysql", connection)
 	db.LogMode(true)
@@ -26,13 +29,15 @@ func main() {
 
 	defer db.Close()
 
-	// entryUrl := "https://www.etsy.com/robots.txt"
-	// entryPage := newRobotsPage(entryUrl)
+	if (option == "parser") {
+		runId := newRunLog().Id();
+		startParsing(runId);
+	} else if (option == "crawler") {
+		entryUrl := "https://www.etsy.com/robots.txt"
+		entryPage := newRobotsPage(entryUrl)
+		startQueuer(entryPage)
+	} else {
+		print("Second arg should be parser or crawler");
+	}
 
-	// entryUrl := "https://www.etsy.com/listing/521442201/maui-sunrise-2"
-	// entryPage := newListingPage(entryUrl)
-
-	//startQueuer(entryPage)
-
-	startParsing();
 }

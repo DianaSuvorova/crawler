@@ -18,13 +18,15 @@ type shopRecord struct {
   gorm.Model
   TotalNumSold int
   Url string
+  RunId uint
 }
 
-func newShopPage(source shopSource) *shopPage  {
+func newShopPage(source shopSource, runId uint) *shopPage  {
   sp := new(shopPage)
   sp.shopSource = &source
   sp.shopRecord = new(shopRecord)
   sp.shopRecord.Url = source.Url
+  sp.shopRecord.RunId = runId
 
   return sp;
 }
