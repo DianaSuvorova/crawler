@@ -14,7 +14,7 @@ func startParsing (runId uint) {
   //db.Where("deleted IS NULL and joined IS NULL").Find(&sources)
   println("sources", len(sources))
   sourcesChan := make(chan shopSource, len(sources))
-  for  _, source := range sources[:2] {
+  for  _, source := range sources {
     sourcesChan <- source
     wg.Add(1)
   }
