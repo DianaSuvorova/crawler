@@ -20,7 +20,6 @@ type shopSource struct {
   Url string `gorm:"unique_index"`
   Joined string
   Deleted bool
-  RunId int
 }
 
 func newListingPage(url string) *listingPage {
