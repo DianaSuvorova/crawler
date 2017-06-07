@@ -33,7 +33,7 @@ func processPages(sourcesChan chan shopSource, runId uint) {
          log.Println(source.Url)
          log.Println("numRoutines", runtime.NumGoroutine())
          log.Println("remaining", len(sourcesChan))
-         page.process()
+         page.process(0)
          wg.Done()
       }
     }()

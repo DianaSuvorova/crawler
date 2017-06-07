@@ -31,7 +31,7 @@ func newShopPage(source shopSource, runId uint) *shopPage  {
   return sp;
 }
 
-func (sp * shopPage) process() {
+func (sp * shopPage) process(availSpaceInQueue int) {
   var err error;
   sp.doc, err = goquery.NewDocument(sp.shopRecord.Url)
   if (err == nil) {

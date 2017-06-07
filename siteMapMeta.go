@@ -19,13 +19,17 @@ func newSiteMapMetaPage(url string) *siteMapMetaPage {
   return smmp
 }
 
-func (smmp *siteMapMetaPage) process() (siteMapPages []processor) {
+func (smmp *siteMapMetaPage) process(availSpaceInQueue int) (siteMapPages []processor) {
 	success := smmp.page.fetch();
 	if success {
-		xml.Unmarshal([]byte(smmp.page.body), &smmp.siteMapMeta)
-		for _, link := range smmp.siteMapMeta.Links {
-			siteMap := newSiteMapPage(link.String())
-			siteMapPages = append(siteMapPages, siteMap)
+		if (len(smmp.siteMapMeta.Links) < availSpaceInQueue) {
+			xml.Unmarshal([]byte(smmp.page.body), &smmp.siteMapMeta)
+			for _, link := range smmp.siteMapMeta.Links {
+				siteMap := newSiteMapPage(link.String())
+				siteMapPages = append(siteMapPages, siteMap)
+			}
+		} else {
+			siteMapPages = append(siteMapPages, smmp)
 		}
 	}
 	return

@@ -30,7 +30,7 @@ func newListingPage(url string) *listingPage {
   return lp
 }
 
-func (lp *listingPage) process() (zero []processor) {
+func (lp *listingPage) process(availSpaceInQueue int) (zero []processor) {
   var err error;
   lp.doc, err = goquery.NewDocument(lp.listing.url)
   if (err == nil) {

@@ -43,7 +43,7 @@ func (rp *robotsPage) getShopListingSiteMaps() {
   }
 }
 
-func (rp *robotsPage) process() (siteMapMetaPages []processor) {
+func (rp *robotsPage) process(availSpaceInQueue int) (siteMapMetaPages []processor) {
   success := rp.page.fetch();
   if (success) {
     rp.getShopListingSiteMaps()
