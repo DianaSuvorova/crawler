@@ -7,7 +7,7 @@ import (
 
 func startQueuer(entryPage processor) {
   queue := make(chan processor)
-	filteredQueue := make(chan processor, 10000000)
+	filteredQueue := make(chan processor, 1000000000)
 
 
   go filterQueue(queue, filteredQueue)
