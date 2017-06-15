@@ -5,10 +5,12 @@ import (
   "log"
 )
 
+var capacity int;
+
 func startQueuer(entryPage processor) {
+  capacity = 5000000;
   queue := make(chan processor)
 	filteredQueue := make(chan processor, 1000000000)
-
 
   go filterQueue(queue, filteredQueue)
 	processFilteredQueue(filteredQueue, queue, entryPage)
@@ -30,7 +32,7 @@ func processFilteredQueue(filteredQueue chan processor, queue chan processor, en
          log.Println(page.url())
          log.Println("numRoutines", runtime.NumGoroutine())
          log.Println("length of the filteredQueue", len(filteredQueue))
-          pages := page.process()
+          pages := page.process(capacity-len(filteredQueue))
         for _, addPage := range pages {
 
           queue <- addPage
